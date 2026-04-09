@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindWeave - 本地 AI 工作台 · 使用文档</title>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --bg-card: #12121a;
+            --bg-code: #0d0d14;
+            --border: #2a2a3a;
+            --text: #e4e4e7;
+            --text-muted: #71717a;
+            --accent: #c9a85c;
+            --accent-glow: rgba(201,168,92,0.15);
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.8;
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ===== 导航 ===== */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10,10,15,0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 40px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            height: 58px;
+        }
+
+        nav .logo {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        nav .links {
+            display: flex;
+            gap: 4px;
+        }
+
+        nav .links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            transition: all 0.15s;
+        }
+
+        nav .links a:hover,
+        nav .links a.active {
+            color: var(--text);
+            background: var(--bg-card);
+        }
+
+        nav .meta {
+            margin-left: auto;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* ===== 容器 ===== */
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 48px 32px 100px;
+        }
+
+        /* ===== 大标题 ===== */
+        .hero {
+            padding: 72px 0 56px;
+            text-align: center;
+        }
+
+        .hero .emoji { font-size: 64px; margin-bottom: 20px; }
+        .hero h1 { font-size: 40px; font-weight: 700; color: var(--accent); margin-bottom: 12px; }
+        .hero .subtitle { font-size: 18px; color: var(--text-muted); margin-bottom: 32px; }
+
+        .hero .badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .badge {
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        /* ===== 目录 ===== */
+        .toc {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px 32px;
+            margin-bottom: 48px;
+        }
+
+        .toc h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 16px; }
+        .toc ol { padding-left: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; }
+        .toc li { font-size: 14px; }
+        .toc a { color: var(--text-muted); text-decoration: none; transition: color 0.15s; }
+        .toc a:hover { color: var(--accent); }
+
+        /* ===== 章节 ===== */
+        section { margin-bottom: 56px; }
+
+        section h2 {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        section h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--accent);
+            margin: 28px 0 10px;
+        }
+
+        section p { margin-bottom: 14px; color: #a1a1aa; }
+
+        section ul { padding-left: 22px; margin-bottom: 14px; }
+        section li { margin-bottom: 6px; color: #a1a1aa; }
+
+        section strong { color: var(--text); }
+        code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; color: var(--accent); background: var(--bg-code); padding: 2px 6px; border-radius: 4px; }
+
+        .cmd {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            color: #a1a1aa;
+            overflow-x: auto;
+            margin: 12px 0;
+            white-space: pre;
+        }
+
+        .cmd .prompt { color: var(--success); user-select: none; }
+        .cmd .comment { color: var(--text-muted); font-style: italic; }
+
+        .highlight-box {
+            background: var(--accent-glow);
+            border: 1px solid rgba(201,168,92,0.25);
+            border-radius: 12px;
+            padding: 18px 22px;
+            margin: 16px 0;
+            font-size: 14px;
+        }
+
+        .highlight-box .title {
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .highlight-box p { color: #a1a1aa; margin: 0; }
+
+        .step {
+            display: flex;
+            gap: 16px;
+            margin: 18px 0;
+        }
+
+        .step .num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #b8956a);
+            color: #0a0a0f;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .step .body { flex: 1; }
+
+        .step .body h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        .step .body p { margin: 0; font-size: 14px; }
+
+        .table-wrap {
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            text-align: left;
+            padding: 10px 14px;
+            background: var(--bg-card);
+            color: var(--text);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: #a1a1aa;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-muted);
+            font-size: 12px;
+            border-top: 1px solid var(--border);
+            margin-top: 60px;
+        }
+
+        .footer a { color: var(--accent); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="#" class="logo">✨ MindWeave</a>
+    <div class="links">
+        <a href="#intro">简介</a>
+        <a href="#install">安装</a>
+        <a href="#quickstart">快速上手</a>
+        <a href="#features">功能说明</a>
+        <a href="#users">多用户</a>
+        <a href="#faq">常见问题</a>
+    </div>
+    <span class="meta">v1.0 · Davey</span>
+</nav>
+
+<div class="container">
+
+    <div class="hero" id="intro">
+        <div class="emoji">✨</div>
+        <h1>MindWeave · 本地 AI 工作台</h1>
+        <p class="subtitle">离线运行 · 数据私有 · 多用户协作</p>
+        <div class="badges">
+            <span class="badge">🤖 Ollama 驱动</span>
+            <span class="badge">🔒 数据本地存储</span>
+            <span class="badge">👥 多账号支持</span>
+            <span class="badge">📄 Markdown 渲染</span>
+            <span class="badge">💾 对话导出</span>
+        </div>
+    </div>
+
+    <!-- 目录 -->
+    <div class="toc" id="toc">
+        <h2>目录</h2>
+        <ol>
+            <li><a href="#intro">产品简介</a></li>
+            <li><a href="#install">安装配置</a></li>
+            <li><a href="#quickstart">快速上手</a></li>
+            <li><a href="#features">功能说明</a></li>
+            <li><a href="#users">多用户管理</a></li>
+            <li><a href="#deploy">内网部署</a></li>
+            <li><a href="#faq">常见问题</a></li>
+        </ol>
+    </div>
+
+    <!-- 产品简介 -->
+    <section>
+        <h2>📖 产品简介</h2>
+        <p>MindWeave 是一款基于 Ollama 的本地 AI 对话工作台。无需联网，所有对话数据存储在本地，支持多用户协作，适合办公室或团队在局域网内共享使用。</p>
+
+        <div class="highlight-box">
+            <div class="title">💡 核心理念</div>
+            <p>你的数据永远存储在自己的电脑上，不经过任何第三方服务器。大模型运行在本地硬件，零网络延迟，零数据泄露风险。</p>
+        </div>
+
+        <h3>适用场景</h3>
+        <ul>
+            <li>办公室内部 AI 助手（无需互联网）</li>
+            <li>需要数据完全私有的工作场景</li>
+            <li>团队共享使用，降低每人一台设备的模型部署成本</li>
+            <li>日常文档写作、代码辅助、资料整理</li>
+        </ul>
+    </section>
+
+    <!-- 安装配置 -->
+    <section>
+        <h2>⚙️ 安装配置</h2>
+
+        <h3>环境要求</h3>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>项目</th><th>要求</th><th>说明</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>操作系统</td><td>macOS 12+ / Linux</td><td>Windows 建议 WSL2</td></tr>
+                    <tr><td>内存</td><td>≥ 8GB</td><td>16GB 体验更佳</td></tr>
+                    <tr><td>磁盘</td><td>≥ 10GB</td><td>存放模型文件</td></tr>
+                    <tr><td>PHP</td><td>≥ 8.1</td><td>Laravel 11 运行要求</td></tr>
+                    <tr><td>Composer</td><td>≥ 2.0</td><td>PHP 包管理器</td></tr>
+                    <tr><td>Ollama</td><td>≥ 0.1</td><td>大模型运行时</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>第一步：安装 Ollama</h3>
+        <p>Ollama 是本地大模型的运行时引擎，负责下载和管理模型。</p>
+        <div class="cmd"><span class="prompt">$</span> brew install ollama</div>
+
+        <h3>第二步：下载模型</h3>
+        <p>根据你的硬件配置选择合适的模型。模型越大，效果越好，但对内存要求越高。</p>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>模型</th><th>大小</th><th>内存要求</th><th>适用场景</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>qwen2.5:3b</td><td>1.8GB</td><td>≥ 4GB</td><td>快速问答、轻量辅助</td></tr>
+                    <tr><td>qwen2.5:7b</td><td>4.4GB</td><td>≥ 8GB</td><td>日常办公、文档写作</td></tr>
+                    <tr><td>qwen2.5:14b</td><td>8.2GB</td><td>≥ 16GB</td><td>代码辅助、深度分析</td></tr>
+                    <tr><td>poet-qwen:latest</td><td>~2GB</td><td>≥ 6GB</td><td>中文对话优化版</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="cmd"><span class="prompt">$</span> ollama pull qwen2.5:3b        <span class="comment"># 推荐入门</span></div>
+        <div class="cmd"><span class="prompt">$</span> ollama pull qwen2.5:7b        <span class="comment"># 进阶配置</span></div>
+
+        <h3>第三步：启动 Ollama 服务</h3>
+        <div class="cmd"><span class="prompt">$</span> ollama serve</div>
+        <p>Ollama 默认监听 <code>http://localhost:11434</code>，保持运行即可。</p>
+
+        <h3>第四步：安装 MindWeave</h3>
+        <div class="cmd"><span class="prompt">$</span> cd ~/mindweave
+<span class="prompt">$</span> composer install
+<span class="prompt">$</span> php artisan serve --host=0.0.0.0 --port=3456</div>
+
+        <div class="highlight-box">
+            <div class="title">🎉 访问地址</div>
+            <p>本地访问：<code>http://localhost:3456</code><br>
+            局域网访问（见「内网部署」章节）：<code>http://你的IP:3456</code></p>
+        </div>
+    </section>
+
+    <!-- 快速上手 -->
+    <section id="quickstart">
+        <h2>🚀 快速上手</h2>
+
+        <div class="step">
+            <div class="num">1</div>
+            <div class="body">
+                <h4>首次登录</h4>
+                <p>首次访问时无需输入密码，直接以「访客」身份进入。可在设置中创建专属账号。</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="num">2</div>
+            <div class="body">
+                <h4>选择大模型</h4>
+                <p>在顶部「模型」下拉框中选择已下载的模型。不同模型擅长不同场景，可按需切换。</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="num">3</div>
+            <div class="body">
+                <h4>开始对话</h4>
+                <p>在底部输入框输入问题，按 Enter 或点击「发送」。支持 Markdown 语法，代码块自动高亮显示。</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="num">4</div>
+            <div class="body">
+                <h4>新建对话</h4>
+                <p>点击左侧「+ 新建对话」开启新会话。每个会话自动保存在侧边栏，随时切换。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 功能说明 -->
+    <section id="features">
+        <h2>🔧 功能说明</h2>
+
+        <h3>对话管理</h3>
+        <ul>
+            <li><strong>新建对话</strong> — 侧边栏点击「+ 新建对话」，自动生成新会话</li>
+            <li><strong>切换会话</strong> — 点击侧边栏历史会话，查看之前对话内容</li>
+            <li><strong>删除会话</strong> — 鼠标悬停会话，右侧出现「删除」按钮</li>
+            <li><strong>清空当前</strong> — 点击顶部的「🗑️ 清空」按钮，清除当前对话内容</li>
+        </ul>
+
+        <h3>对话导出</h3>
+        <ul>
+            <li><strong>导出 MD</strong> — 将当前对话导出为 Markdown 格式，适合直接粘贴到文档</li>
+            <li><strong>导出 JSON</strong> — 导出为 JSON 格式，适合程序处理或备份</li>
+        </ul>
+
+        <h3>Markdown 支持</h3>
+        <p>助手回复支持完整 Markdown 渲染，包括：</p>
+        <ul>
+            <li>代码块（高亮显示、等宽字体）</li>
+            <li>行内代码</li>
+            <li>粗体、斜体</li>
+            <li>引用块</li>
+            <li>有序/无序列表</li>
+            <li>表格</li>
+            <li>标题分级</li>
+        </ul>
+
+        <h3>模型选择</h3>
+        <p>顶部模型选择器支持切换不同的大模型。切换模型后，后续对话将使用新模型，已有的历史消息不受影响。建议根据任务类型选择合适的模型：</p>
+        <ul>
+            <li>日常问答、写作 → 小模型（qwen2.5:3b）响应快</li>
+            <li>代码辅助、复杂分析 → 大模型（qwen2.5:7b+）效果更好</li>
+        </ul>
+    </section>
+
+    <!-- 多用户管理 -->
+    <section id="users">
+        <h2>👥 多用户管理</h2>
+        <p>MindWeave 支持多账号系统，每个用户拥有独立的会话存储空间，数据完全隔离。</p>
+
+        <h3>创建用户</h3>
+        <div class="step">
+            <div class="num">1</div>
+            <div class="body">
+                <h4>进入设置</h4>
+                <p>点击侧边栏底部的「用户管理」按钮</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="num">2</div>
+            <div class="body">
+                <h4>添加账号</h4>
+                <p>在用户管理界面输入用户名，点击「创建」</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="num">3</div>
+            <div class="body">
+                <h4>设置密码（可选）</h4>
+                <p>点击用户旁边的「改密」按钮设置独立密码。不设置密码则无需验证直接进入。</p>
+            </div>
+        </div>
+
+        <div class="highlight-box">
+            <div class="title">🔐 访客模式</div>
+            <p>访客账号（guest）无需密码，任何人可直接进入。适合公共设备或快速体验。访客的对话数据同样独立存储。</p>
+        </div>
+
+        <h3>账号管理</h3>
+        <ul>
+            <li><strong>修改密码</strong> — 点击「改密」，输入新密码，留空则清除密码</li>
+            <li><strong>删除用户</strong> — 点击「删除」，该用户的所有对话记录将同步删除</li>
+            <li><strong>访客账号</strong> — 系统内置，不可删除</li>
+        </ul>
+    </section>
+
+    <!-- 内网部署 -->
+    <section id="deploy">
+        <h2>🌐 内网部署</h2>
+        <p>如果需要让局域网内其他同事访问 MindWeave，需要将服务暴露到局域网。</p>
+
+        <h3>查找本机 IP</h3>
+        <div class="cmd"><span class="prompt">$</span> ipconfig getifaddr en0
+192.168.1.100</div>
+
+        <h3>启动服务（局域网模式）</h3>
+        <div class="cmd"><span class="prompt">$</span> cd ~/mindweave
+<span class="prompt">$</span> php artisan serve --host=0.0.0.0 --port=3456</div>
+
+        <h3>同事访问</h3>
+        <p>在同一局域网下，打开浏览器访问：</p>
+        <div class="cmd"><span class="prompt">$</span> http://192.168.1.100:3456</div>
+
+        <div class="highlight-box">
+            <div class="title">⚠️ 安全提示</div>
+            <p>局域网模式下，同一网络内的设备均可访问。建议设置账号密码保护（见「多用户管理」），防止未经授权的访问。</p>
+        </div>
+
+        <h3>开机自启（可选）</h3>
+        <p>如需 MindWeave 在 Mac 启动时自动运行，可使用 launchd 或 Homebrew Services：</p>
+        <div class="cmd"><span class="prompt">$</span> brew services run laravel-valet   <span class="comment"># 或配置 launchd</span></div>
+    </section>
+
+    <!-- 常见问题 -->
+    <section id="faq">
+        <h2>❓ 常见问题</h2>
+
+        <h3>Q: 页面打不开，显示空白？</h3>
+        <p>请确认两个服务都在运行：<code>ollama serve</code>（Ollama）和 <code>php artisan serve</code>（MindWeave）。另外确认端口 3456 未被其他程序占用。</p>
+
+        <h3>Q: 发送消息后没有回复？</h3>
+        <p>检查 Ollama 是否正常运行：<code>curl http://localhost:11434</code>。如果返回版本信息则正常。如果模型未下载，先执行 <code>ollama pull 模型名</code>。</p>
+
+        <h3>Q: 回复速度很慢？</h3>
+        <p>模型越大，生成速度越慢。建议使用较小的模型（如 qwen2.5:3b）进行日常对话。另外，确保 Mac 有足够的可用内存。</p>
+
+        <h3>Q: 对话数据存在哪里？</h3>
+        <p>所有对话数据存储在 <code>mindweave-data/sessions/</code> 目录下，每个用户的数据在各自的用户名文件夹下。备份时只需备份整个 <code>mindweave-data</code> 文件夹即可。</p>
+
+        <h3>Q: 如何更换大模型？</h3>
+        <p>先下载新模型：<code>ollama pull qwen2.5:7b</code>，然后在 MindWeave 顶部模型选择器中切换即可。</p>
+
+        <h3>Q: 能远程访问吗？</h3>
+        <p>可以。推荐使用 Tailscale 将多台设备组成虚拟局域网，然后按「内网部署」方式访问。</p>
+    </section>
+
+    <div class="footer">
+        <p>© 2026 <strong>MindWeave</strong> · by <a href="https://github.com/weinotes" target="_blank">GitHub</a></p>
+        <p style="margin-top: 6px;">基于 Ollama 构建 · 数据完全本地存储 · 开源免费使用</p>
+    </div>
+
+</div>
+
+<script>
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            e.preventDefault();
+            const target = document.querySelector(a.getAttribute('href'));
+            if (target) {
+                const top = target.getBoundingClientRect().top + window.scrollY - 70;
+                window.scrollTo({ top, behavior: 'smooth' });
+            }
+        });
+    });
+
+    // 导航高亮
+    const sections = document.querySelectorAll('section[id], .hero[id]');
+    const navLinks = document.querySelectorAll('nav .links a');
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(s => {
+            if (s.getBoundingClientRect().top <= 100) current = s.id;
+        });
+        navLinks.forEach(a => {
+            a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+        });
+    });
+</script>
+
+</body>
+</html>
