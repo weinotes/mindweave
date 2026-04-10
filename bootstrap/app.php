@@ -14,6 +14,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'password' => \App\Http\Middleware\CheckPassword::class,
         ]);
+        
+        // 禁用特定路由的 CSRF 验证
+        $middleware->validateCsrfTokens(except: [
+            'chat',
+            'chat/stream',
+            'sessions/*/messages/*',
+            'sessions/*/rename',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

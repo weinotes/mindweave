@@ -31,6 +31,28 @@ class CheckPassword
             return $next($request);
         }
 
+        // Allow guest access for API routes if accessing guest sessions
+        $route = $request->route();
+        if ($route) {
+            $routeUri = $route->uri();
+            // Check if accessing a guest session via API
+            if (str_starts_with($routeUri, 'sessions/')) {
+                $id = $request->route('id');
+                if ($id && $this->userService->getSession('guest', $id)) {
+                    $request->session()->put('username', 'guest');
+                    return $next($request);
+                }
+            }
+            // Allow chat API for guest sessions
+            if ($routeUri === 'chat' || $routeUri === 'chat/stream') {
+                $sessionId = $request->input('session_id');
+                if ($sessionId && $this->userService->getSession('guest', $sessionId)) {
+                    $request->session()->put('username', 'guest');
+                    return $next($request);
+                }
+            }
+        }
+
         // Multi-user: must log in
         return redirect('/login');
     }

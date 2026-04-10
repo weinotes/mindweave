@@ -129,7 +129,7 @@ mindweave/
 ├── docs/
 │   └── index.html                    # 用户使用文档
 ├── public/
-│   └── js/marked.min.js              # Markdown 渲染库（本地）
+│   └── js/marked.min.js              # Markdown 渲染库（npm 安装后复制）
 ├── resources/views/
 │   ├── chat.blade.php                # 主聊天界面
 │   └── login.blade.php               # 登录页面

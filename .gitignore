@@ -27,3 +27,12 @@ Thumbs.db
 # 项目数据目录
 userdata/
 userdata_path.txt
+
+# 数据库文件（本地开发用，不应提交）
+/database/*.sqlite
+/database/*.sqlite-journal
+/database/*.sqlite-shm
+/database/*.sqlite-wal
+
+# 编译缓存
+/storage/framework/views/*.php
