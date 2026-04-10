@@ -17,6 +17,19 @@
             setTimeout(() => t.className = 'toast', 2500);
         }
 
+        // 检测 Ollama 是否在线
+        async function checkOllamaHealth() {
+            try {
+                const controller = new AbortController();
+                const t = setTimeout(() => controller.abort(), 3000);
+                await fetch('/models', { signal: controller.signal });
+                clearTimeout(t);
+                return true;
+            } catch {
+                return false;
+            }
+        }
+
         // ===== Models =====
         async function loadModels() {
             try {
@@ -136,6 +149,15 @@
             const input = document.getElementById('userInput');
             const msg = input.value.trim();
             if (!msg) return;
+
+            // Ollama 连接检测（首次发送时）
+            const isHealthy = await checkOllamaHealth();
+            if (!isHealthy) {
+                toast('❌ Ollama 未运行或连接超时，请检查服务状态', 'error');
+                input.value = msg; // 恢复输入
+                input.focus();
+                return;
+            }
 
             const btn = document.getElementById('sendBtn');
             btn.disabled = true;
