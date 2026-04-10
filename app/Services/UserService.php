@@ -115,14 +115,32 @@ class UserService
         $user = $this->getUser($username);
         if (!$user) return false;
         if (empty($user['password'])) return true; // no password set
-        return md5($password) === $user['password'];
+
+        $stored = $user['password'];
+
+        // bcrypt（60字符，$2开头的标准格式）→ 直接验
+        if (strlen($stored) === 60 && str_starts_with($stored, '$2')) {
+            return password_verify($password, $stored);
+        }
+
+        // 旧 MD5（32字符）→ 兼容验证，验证通过后自动升级为 bcrypt
+        if (strlen($stored) === 32 && ctype_alnum($stored)) {
+            if (md5($password) === $stored) {
+                $this->setPassword($username, $password); // 升级为 bcrypt
+                return true;
+            }
+            return false;
+        }
+
+        // 其他格式，不通过
+        return false;
     }
 
     public function createUser(string $username, string $password = ''): array
     {
         $user = [
             'username' => $username,
-            'password' => $password ? md5($password) : '',
+            'password' => $password ? password_hash($password, PASSWORD_BCRYPT) : '',
             'created_at' => now()->toISOString(),
             'sessions' => [],
         ];
@@ -135,7 +153,7 @@ class UserService
     {
         $user = $this->getUser($username);
         if (!$user) return false;
-        $user['password'] = md5($password);
+        $user['password'] = password_hash($password, PASSWORD_BCRYPT);
         $user['updated_at'] = now()->toISOString();
         $file = $this->usersDir() . '/' . $username . '.json';
         File::put($file, json_encode($user, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
