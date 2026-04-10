@@ -52,7 +52,7 @@
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
                             模型
                         </label>
-                        <select class="model-select" id="modelSelect"></select>
+                        <select class="model-select" id="modelSelect" onchange="currentModel = this.value"></select>
                         <button class="icon-btn" onclick="openModelModal()" title="模型管理" style="font-size:14px;padding:4px 8px;">⚙️</button>
                     </div>
                 </div>
