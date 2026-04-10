@@ -167,7 +167,7 @@
                     <button onclick="saveMyPassword()">保存</button>
                 </div>
                 <div class="hint-box">
-                    💡 密码以 MD5 简单加密（内网使用，勿暴露外网）。设置后每次访问需输入密码验证。
+                    💡 密码以 bcrypt 高强度加密（内网使用，勿暴露外网）。设置后每次访问需输入密码验证。
                 </div>
             </div>
 

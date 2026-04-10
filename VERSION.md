@@ -10,6 +10,17 @@
 **技术栈:** Laravel 11 + Ollama + SQLite + marked.js
 **运行端口:** 3456
 
+### v1.3.2 功能优化（2026-04-10）
+
+| 类别 | 改动 |
+|------|------|
+| 重构 | `chat.blade.php` 拆分为 `public/css/chat.css` + `public/js/chat.js`，模板从 2991 行减至 234 行 |
+| 体验 | 回车发送消息（`Enter` 发送，`Shift+Enter` 换行） |
+| 体验 | Ollama 离线时首次发送前检测，实时提示连接失败原因 |
+| 安全 | 密码 MD5 → bcrypt，已有用户下次登录自动升级（零破坏性迁移） |
+| 杂项 | 依赖版本锁定（`composer.lock`）；`.env.example` 补全 `OLLAMA_HOST`/`OLLAMA_MODEL` |
+| 杂项 | 删除废弃 `streamPullModel` SSE 下载代码（121 行） |
+
 ### v1.3.2 修复问题（2026-04-10）
 
 | 问题 | 修复方案 |
