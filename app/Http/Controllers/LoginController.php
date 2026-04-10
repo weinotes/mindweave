@@ -25,6 +25,13 @@ class LoginController extends Controller
         }
 
         $users = $this->userService->listUsers();
+
+        // First install: auto-create default admin account
+        if (empty($users)) {
+            $this->userService->createUser('admin', 'admin');
+            $users = $this->userService->listUsers();
+        }
+
         return view('login', compact('users'));
     }
 
@@ -32,13 +39,6 @@ class LoginController extends Controller
     {
         $username = trim($request->input('username', ''));
         $password = $request->input('password', '');
-
-        // Single-user mode: no users created yet, auto-login as guest
-        $users = $this->userService->listUsers();
-        if (empty($users)) {
-            $request->session()->put('username', 'guest');
-            return redirect('/');
-        }
 
         // Multi-user mode: must select username
         if (empty($username)) {
@@ -56,6 +56,28 @@ class LoginController extends Controller
             return back()->withErrors(['password' => '密码错误']);
         }
 
+        $request->session()->put('username', $username);
+        return redirect('/');
+    }
+
+    public function register(Request $request)
+    {
+        $username = trim($request->input('username', ''));
+        $password = $request->input('password', '');
+
+        if (empty($username) || strlen($username) < 2) {
+            return back()->withErrors(['username' => '用户名至少2个字符']);
+        }
+        if (strlen($password) < 4) {
+            return back()->withErrors(['password' => '密码至少4个字符']);
+        }
+
+        $users = $this->userService->listUsers();
+        if (array_key_exists($username, $users)) {
+            return back()->withErrors(['username' => '用户名已存在']);
+        }
+
+        $this->userService->createUser($username, $password);
         $request->session()->put('username', $username);
         return redirect('/');
     }

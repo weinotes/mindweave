@@ -15,6 +15,7 @@ use App\Http\Controllers\LoginController;
 
 Route::get('/login', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate']);
+Route::post('/register', [LoginController::class, 'register']);
 Route::post('/logout', [LoginController::class, 'logout']);
 
 // Protected routes
