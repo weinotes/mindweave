@@ -338,7 +338,8 @@ body { transition: background 0.3s, color 0.3s; }
 .input-wrapper:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
 .input-wrapper textarea {
     flex: 1; background: transparent; border: none; color: var(--text-primary);
-    font-size: 15px; resize: none; outline: none; min-height: 26px; max-height: 140px; line-height: 1.6;
+    font-size: 15px; resize: none; outline: none; min-height: 26px; max-height: 140px;
+    line-height: 1.6; overflow: hidden;
 }
 .input-wrapper textarea::placeholder { color: var(--text-secondary); }
 .input-wrapper button {
