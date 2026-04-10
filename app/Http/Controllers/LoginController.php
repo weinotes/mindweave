@@ -51,8 +51,8 @@ class LoginController extends Controller
             return back()->withErrors(['username' => '用户不存在']);
         }
 
-        // Verify password (empty password = no password required)
-        if (!empty($user['password']) && md5($password) !== $user['password']) {
+        // Verify password via UserService (handles MD5→bcrypt auto-migration)
+        if (!empty($user['password']) && !$this->userService->verifyPassword($username, $password)) {
             return back()->withErrors(['password' => '密码错误']);
         }
 
