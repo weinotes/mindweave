@@ -36,3 +36,4 @@ userdata_path.txt
 
 # 编译缓存
 /storage/framework/views/*.php
+*.bak
